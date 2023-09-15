@@ -38,6 +38,19 @@ void upper2lower(char* c){
     }
 }
 
+void cap(char* c){
+    if (*c >= 'a' && *c<= 'z'){
+        *c = *c-32;
+    }
+    c++;
+    while (*c != '\0'){
+        if (*c >= 'A' && *c<= 'Z'){
+            *c = *c+32;
+        }
+        c++;
+    }
+}
+
 
 int main(int argc, char* argv[])
 {
@@ -52,6 +65,13 @@ int main(int argc, char* argv[])
     if(strcompre(argv[1], "-l") == 0){
         for (int i = 2; i < argc; i++){
             upper2lower(argv[i]);
+            printf("%s ", argv[i]);
+        }
+        printf("\n");
+    }
+    if(strcompre(argv[1], "-cap") == 0){
+        for (int i = 2; i < argc; i++){
+            cap(argv[i]);
             printf("%s ", argv[i]);
         }
         printf("\n");
