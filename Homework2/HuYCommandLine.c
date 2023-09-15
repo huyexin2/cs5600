@@ -29,6 +29,15 @@ void lower2upper(char* c){
     }
 }
 
+void upper2lower(char* c){
+    while (*c != '\0'){
+        if (*c >= 'A' && *c<= 'Z'){
+            *c = *c+32;
+        }
+        c++;
+    }
+}
+
 
 int main(int argc, char* argv[])
 {
@@ -36,6 +45,13 @@ int main(int argc, char* argv[])
     if(strcompre(argv[1], "-u") == 0){
         for (int i = 2; i < argc; i++){
             lower2upper(argv[i]);
+            printf("%s ", argv[i]);
+        }
+        printf("\n");
+    }
+    if(strcompre(argv[1], "-l") == 0){
+        for (int i = 2; i < argc; i++){
+            upper2lower(argv[i]);
             printf("%s ", argv[i]);
         }
         printf("\n");
