@@ -9,7 +9,7 @@
 
 typedef void (*ConversionFunc)(char*);
 
-// Compare string
+// Compare options.
 int strcompre(char* str1, char* str2) {
     int flag = 0;
     while(*str1 != '\0' && *str2 != '\0') {
@@ -60,7 +60,8 @@ void cap(char* c){
 int main(int argc, char* argv[])
 {
     if (argc < 3) {
-        printf("Please provide at least 3 arguments (program name, option, and at least one word)");
+        printf("Error: Please provide at least 3 arguments (program name, option, and at least one word).\n");
+        return -1;
     }
     
     ConversionFunc conversionFunc = NULL;
@@ -72,6 +73,7 @@ int main(int argc, char* argv[])
     } else if (strcompre(argv[1], "-cap") == 0) {
         conversionFunc = cap;
     } else {
+        printf("Error: Please provide a vaild option: -l, -u, -cap.\n");
         return -1;
     }
         
