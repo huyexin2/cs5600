@@ -7,19 +7,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-
-// Allocate 1MB of stack memory.
-void allocateStackMemory() {
-    char stackMemory[1 * 1024 * 1024];
-    printf("1MB of stack memory is allocated at %p.\n", stackMemory);
-}
-
-// Allocate 10MB of heap memory.
-char* alloatedHeapMemory() {
-    char* heapMemory = (char*)malloc(10 * 1024 * 1024);
-    printf("5MB of heap memory is allocated at %p.\n", heapMemory);
-    return heapMemory;
-}
+#include "alloc-mem.h"
 
 // Allocate 5MB of static memory.
 static char staticMemory[5 * 1024 * 1024];

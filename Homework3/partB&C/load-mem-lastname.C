@@ -1,36 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-// Define the dynBlock structure.
-typedef struct {
-    int* array;
-    int size;
-} dynBlock;
-
-// Allocate a single instance of a dynBlock from the heap and returns a point to the allocated object
-dynBlock* allocDynBlock(int size) {
-    dynBlock* newBlock = (dynBlock*)malloc(sizeof(dynBlock));
-    if (newBlock == NULL) {
-        printf("Error: Memory allocation for new dynBlock failed.\n");
-    }
-
-    newBlock->size = size;
-    newBlock->array = (int*)malloc(size * sizeof(int));
-    if (newBlock->array == NULL) {
-        printf("Error: Memory allocation for array failed.\n");
-        free(newBlock);
-        return NULL;
-    }
-    return newBlock;
-}
-
-// Store an array of integers in a dynamic block.
-void storeMem2Blk(dynBlock* block, int* array, int arraySize) {
-    for (int i = 0; i < arraySize; i++) {
-        block->array[i] = array[i];
-    }
-}
+#include "block-impl.h"
+#include "block-structure.h"
 
 int main() {
     // Read file
