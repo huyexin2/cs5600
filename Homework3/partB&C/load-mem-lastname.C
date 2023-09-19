@@ -1,3 +1,10 @@
+/*
+* load-mem-lastname.c / Memory Management
+*
+* Yexin Hu, Yi Hsin Wen / CS5600 / Northeastern University
+* Fall 2023 / Sep 15, 2023
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

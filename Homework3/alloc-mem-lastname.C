@@ -1,7 +1,7 @@
 /*
 * alloc-mem-lastname.c / Memory Management
 *
-* My Name / CS5600 / Northeastern University
+* Yexin Hu, Yi Hsin Wen / CS5600 / Northeastern University
 * Fall 2023 / Sep 15, 2023
 */
 
