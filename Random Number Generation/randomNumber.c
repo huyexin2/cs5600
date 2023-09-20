@@ -7,7 +7,7 @@
 */
 
 #include <stdio.h>
-
+#include <time.h>
 
 /*
  * This function uses Linear Congruential Generator (LCG)
@@ -17,6 +17,10 @@ unsigned int seed = 0; // Initial seed (can be changed)
 const unsigned int a = 1664525;
 const unsigned int c = 1013904223;
 const unsigned int m = 4294967296; // 2^32
+
+void initSeed() {
+    seed = (unsigned int)time(NULL);
+}
 
 int genRand(int min, int max) {
     seed = (a * seed + c) % m;

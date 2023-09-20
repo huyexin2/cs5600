@@ -13,6 +13,7 @@
 #include "randomNumber.h"
 
 int main(int argc, char *argv[]) {
+    initSeed();
     // Check the number of command-line arguments
     if (argc > 4 || argc < 3) {
         fprintf(stderr, "Usage: %s <number> <filename> <-a/-o>\n", argv[0]);
@@ -36,7 +37,7 @@ int main(int argc, char *argv[]) {
                     return 1;
                 }
                 // using time to generate seed for random number
-                srand((unsigned int)time(NULL));
+                //srand((unsigned int)time(NULL));
                 
                 // Generate and write random integers to the file
                 for (int i = 0; i < numRandomIntegers; i++) {
@@ -64,7 +65,7 @@ int main(int argc, char *argv[]) {
             return 1;
         }
         // using time to generate seed for random number
-        srand((unsigned int)time(NULL));
+        //srand((unsigned int)time(NULL));
         
         // Generate and write random integers to the file
         for (int i = 0; i < numRandomIntegers; i++) {

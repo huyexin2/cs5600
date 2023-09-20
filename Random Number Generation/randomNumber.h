@@ -14,5 +14,6 @@
  * to generate random numbers.
  */
 int genRand(int min, int max);
+void initSeed();
 
 #endif /* randomNumber_h */
