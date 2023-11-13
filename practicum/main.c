@@ -1,3 +1,10 @@
+/*
+* main.c / Practicum I
+*
+* Yexin Hu, Yi Hsin Wen / CS5600 / Northeastern University
+* Fall 2023 / Nov 14, 2023
+*/
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -43,27 +50,24 @@ int main() {
     }
 
     // print cache
-    for (int k = 0; k < 16; k++) {
-        printf("id: %d\n", messageCache.pages.messages[k].id);
-    }
+    printCache();
 
-    // Retrieve the message from the cache or database
-    for (int j = 1; j < 16; j+=2) {
-        retrieveMessages(db, j);
-    }
-    //retrieveMessages(db, 49);
-    //retrieveMessages(db, 48);
+    // retrieve message from cache
+    retrieveMessages(db, 48);
+    retrieveMessages(db, 49);
 
+    // retrieve message from database
+    retrieveMessages(db,10);
+    retrieveMessages(db, 11);
 
-
-    // Reset database to empty
+    // reset database to empty
     const char *deleteQuery = "DELETE FROM Messages;";
     rc = sqlite3_exec(db, deleteQuery, 0, 0, &errMsg);
 
-    // Close the SQLite database connection
+    // close the SQLite database connection
     sqlite3_close(db);
 
-    // Free allocated memory
+    // free allocated memory
     free(newMsg);
 
     return 0;

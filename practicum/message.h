@@ -1,10 +1,15 @@
+/*
+* message.h / Practicum I
+*
+* Yexin Hu, Yi Hsin Wen / CS5600 / Northeastern University
+* Fall 2023 / Nov 14, 2023
+*/
+
 #ifndef MESSAGE_H
 #define MESSAGE_H
 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
 #include <sqlite3.h>
+#include <string.h>
 
 extern struct Cache messageCache;
 

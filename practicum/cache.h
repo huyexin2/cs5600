@@ -1,9 +1,13 @@
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <stdbool.h>
-#include <sqlite3.h>
-#include <time.h>
+/*
+* cache.h / Practicum I
+*
+* Yexin Hu, Yi Hsin Wen / CS5600 / Northeastern University
+* Fall 2023 / Nov 14, 2023
+*/
+
+#ifndef CACHE_H  
+#define CACHE_H 
+
 #include "message.h"
 
 #define CACHE_SIZE 16
@@ -19,6 +23,7 @@ struct Cache {
 };
 
 int leastRecentUse(struct Message msg);
+void randomReplacement(struct Message *msg);
+void printCache();
 
-int randomReplacement(struct Message *msg);
-
+#endif

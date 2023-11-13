@@ -1,7 +1,12 @@
+/*
+* cache.c / Practicum I
+*
+* Yexin Hu, Yi Hsin Wen / CS5600 / Northeastern University
+* Fall 2023 / Nov 14, 2023
+*/
+
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
-#include <stdbool.h>
 #include <sqlite3.h>
 #include <time.h>
 #include "message.h"
@@ -18,7 +23,7 @@ struct Cache {
     struct Page pages;
 };
 
-struct Cache messageCache;
+extern struct Cache messageCache;
 
 int leastRecentUse(struct Message msg){
      for (int k = 0; k < messageCache.pages.occupied; k++) {
@@ -31,10 +36,17 @@ int leastRecentUse(struct Message msg){
     return 1;
 }
 
-int randomReplacement(struct Message *msg){
+void randomReplacement(struct Message *msg){
     srand(time(NULL));
-
-    // Generate a random number between 0 and 15
+    // generate a random number between 0 and 15
     int randomNumber = rand() % 16;
     messageCache.pages.messages[randomNumber] = *msg;
 }
+
+void printCache() {
+    printf("message in cache:\n");
+    for (int i = 0; i < 16; i++) {
+    printf("id: %d\n", messageCache.pages.messages[i].id);
+    }
+}
+
