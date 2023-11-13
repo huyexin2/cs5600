@@ -35,12 +35,30 @@ int main() {
         messageCache.pages.occupied = 0;
     }
 
-    // Create and store a new message
-    struct Message *newMsg = create_msg(1, "2023-11-10 12:34:56", "Sender1", "Receiver1", "Hello, World!");
-    storeMessage(db, newMsg);
+    // Create and store 1000 new message    
+    struct Message *newMsg = NULL;
+    for (int i = 1; i < 50; i++ ) {
+        newMsg = create_msg(i, "2023-11-10 12:34:56", "Sender1", "Receiver1", "Hello, World!");
+        storeMessage(db, newMsg);
+    }
+
+    // print cache
+    for (int k = 0; k < 16; k++) {
+        printf("id: %d\n", messageCache.pages.messages[k].id);
+    }
 
     // Retrieve the message from the cache or database
-    retrieveMessages(db, 1);
+    for (int j = 1; j < 16; j+=2) {
+        retrieveMessages(db, j);
+    }
+    //retrieveMessages(db, 49);
+    //retrieveMessages(db, 48);
+
+
+
+    // Reset database to empty
+    const char *deleteQuery = "DELETE FROM Messages;";
+    rc = sqlite3_exec(db, deleteQuery, 0, 0, &errMsg);
 
     // Close the SQLite database connection
     sqlite3_close(db);

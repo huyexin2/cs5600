@@ -21,7 +21,13 @@ struct Cache {
 struct Cache messageCache;
 
 int leastRecentUse(struct Message msg){
-    messageCache.pages.messages[0] = msg;
+     for (int k = 0; k < messageCache.pages.occupied; k++) {
+        if (k == messageCache.pages.occupied - 1) {
+            messageCache.pages.messages[k] = msg;
+            break;
+        }
+        messageCache.pages.messages[k] = messageCache.pages.messages[k + 1];
+    }         
     return 1;
 }
 
