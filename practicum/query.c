@@ -60,7 +60,7 @@ int select(sqlite3 *db, struct Message *msg, int id) {
 }
 
 // update by id
-int update(sqlite3 *db, struct Message *msg, int id) {
+int update(sqlite3 *db, int id) {
     char *errMsg;
     char updateQuery[256];
 

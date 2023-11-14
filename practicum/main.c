@@ -15,10 +15,10 @@
 #include "cache.h"
 
 #define CACHE_SIZE 16
-#define PAGE_SIZE 1024
+#define HASH_MAP_SIZE 16
 
 int main() {
-    
+    srand(time(NULL));
     sqlite3 *db;
     char *errMsg;
     int rc = sqlite3_open("test.db", &db);
@@ -28,7 +28,7 @@ int main() {
         return rc;
     }
     
-    //Initialize table
+    //initialize table
     const char *createTableQuery = "CREATE TABLE IF NOT EXISTS Messages (id INTEGER PRIMARY KEY, timeSent TEXT, sender TEXT, receiver TEXT, content TEXT, isDelivered INT);";
 
     rc = sqlite3_exec(db, createTableQuery, 0, 0, &errMsg);
@@ -37,14 +37,17 @@ int main() {
         sqlite3_free(errMsg);
     }
 
-    // Initialize the cache
-    for (int i = 0; i < CACHE_SIZE; i++) {
-        messageCache.pages.occupied = 0;
+    // initialize the cache
+    messageCache.head = NULL;
+    messageCache.tail = NULL;
+    messageCache.occupied = 0;
+    for (int i = 0; i < HASH_MAP_SIZE; i++) {
+        messageCache.hashMap[i] = NULL;
     }
 
     // Create and store 1000 new message    
     struct Message *newMsg = NULL;
-    for (int i = 1; i < 50; i++ ) {
+    for (int i = 1; i < 51; i++ ) {
         newMsg = create_msg(i, "2023-11-10 12:34:56", "Sender1", "Receiver1", "Hello, World!");
         storeMessage(db, newMsg);
     }
@@ -60,6 +63,9 @@ int main() {
     retrieveMessages(db,10);
     retrieveMessages(db, 11);
 
+    // print cache
+    printCache();
+    
     // reset database to empty
     const char *deleteQuery = "DELETE FROM Messages;";
     rc = sqlite3_exec(db, deleteQuery, 0, 0, &errMsg);

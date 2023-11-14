@@ -13,7 +13,6 @@
 #include "cache.h"
 
 #define CACHE_SIZE 16
-#define PAGE_SIZE 1024
 
 struct Cache messageCache;
 
@@ -25,76 +24,59 @@ struct Message* create_msg(int id, const char* timeSent, const char* sender, con
     strcpy(newMessage->sender, sender);
     strcpy(newMessage->receiver, receiver);
     strcpy(newMessage->content, content);
-    newMessage->isDelivered = 0;  // Message is not delivered initially
+    newMessage->isDelivered = 0;  // message is not delivered initially
     return newMessage;
 }
 
 // store a message in the message store and cache
 int storeMessage(sqlite3 *db, struct Message *msg) {
-    // Store in the database
+    // store in the database
     insert(db, msg);
-
-    if (messageCache.pages.occupied < CACHE_SIZE) {
-        // Cache is not full, add to the next available slot
-        messageCache.pages.messages[messageCache.pages.occupied] = *msg;
-        messageCache.pages.occupied++;
-    } else {
-        // Cache is full, there are two methdology for replacement.
-        // Least recent use will replace the first message in cache
-        // Ramdom replcaement will pick a ramdom location in page to replace.
-        leastRecentUse(*msg);
-    }
-
+    // store in cache
+    addToCache(&messageCache, msg);
     return 0;
 }
+
 
 // retrieve a message from the message store and cache
 int retrieveMessages(sqlite3 *db, int id) {
-    struct Message *msg;
+    struct Message *msg = NULL;
 
     // check if the message is in the cache
-    for (int pageIndex = 0; pageIndex < CACHE_SIZE; pageIndex++) {
-        for (int i = 0; i < messageCache.pages.occupied; i++) {
-            msg = &messageCache.pages.messages[i];
-            if (msg->id == id) {
-                printf("Message found in cache:\n");
-                printMessage(msg);
-                // update isDelivered
-                if (msg->isDelivered == 0) {
-                    update(db, msg, id);
-                    select(db, msg, id);
-                }
-                leastRecentUse(*msg);
-                return 0;
-            }
-        }
-    }
-    // If not found in cache, retrieve from the database, and add it to the cache
-    select(db, msg, id);
+    Node *node = findHashMapEntry(&messageCache, id);
 
-    if (!msg->id) {
-        fprintf(stderr, "Cannot find the message by id\n");
-		return 1;
-    }
-
-    if ((msg->isDelivered) == 0) {
-        update(db, msg, id);
+    // cannot find message in cache
+    if (node == NULL) {
         select(db, msg, id);
-    }
-    printf("Message found in database:\n");
-    printMessage(msg);
 
-
-    if (messageCache.pages.occupied < CACHE_SIZE) {
-        messageCache.pages.messages[messageCache.pages.occupied] = *msg;
-        messageCache.pages.occupied ++;
-    } else {
-        leastRecentUse(*msg);
+        if ((msg->isDelivered) == 0) {
+            update(db, id);
+            select(db, msg, id);
+        }
+        printf("Message found in database:\n");
+        printMessage(msg);
+        addToCache(&messageCache, msg);
+        return 0;
     }
-    return 0;
+
+    if (node->message->id == id) {
+        msg = node->message;
+        printf("Message found in cache:\n");
+        // update isDelivered
+        if (node->message->isDelivered == 0) {
+            update(db, id);
+            select(db, msg, id);
+            printMessage(msg);
+        }
+        addToCache(&messageCache, msg);
+        return 0;
+    }
+
+    // if not found in cache, retrieve from the database, and add it to the cache
+    
 }
 
-// Function to print query results
+// print query results
 void printMessage(struct Message *msg) {
     printf("id: %d\n", msg->id);
     printf("timeSent: %s\n", msg->timeSent);
@@ -105,4 +87,14 @@ void printMessage(struct Message *msg) {
     printf("\n");
 }
 
+// update message
+struct Message updateMessage(sqlite3 *db, int id) {
+    struct Message *msg = NULL;
+    if (msg->isDelivered == 0) {
+        update(db, id);
+        select(db, msg, id);
+        printMessage(msg);
+    }
+    return *msg;
+}
 

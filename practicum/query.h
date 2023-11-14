@@ -12,7 +12,7 @@
 #define QUERY_H
 
 // update by id
-int update(sqlite3 *db, struct Message *msg, int id);
+int update(sqlite3 *db, int id);
 // insert message
 int insert(sqlite3 *db, struct Message *msg);
 // select message

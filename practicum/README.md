@@ -30,7 +30,7 @@ timeSent: 2023-11-10 12:34:56
 sender: Sender1
 receiver: Receiver1
 content: Hello, World!
-isDelivered: 0
+isDelivered: 1
 
 Message found in cache:
 id: 49
@@ -38,7 +38,7 @@ timeSent: 2023-11-10 12:34:56
 sender: Sender1
 receiver: Receiver1
 content: Hello, World!
-isDelivered: 0
+isDelivered: 1
 
 Message found in database:
 id: 10
