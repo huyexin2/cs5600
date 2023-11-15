@@ -37,7 +37,6 @@ int storeMessage(sqlite3 *db, struct Message *msg) {
     return 0;
 }
 
-
 // retrieve a message from the message store and cache
 int retrieveMessages(sqlite3 *db, int id) {
     struct Message *msg = NULL;
@@ -45,20 +44,22 @@ int retrieveMessages(sqlite3 *db, int id) {
     // check if the message is in the cache
     Node *node = findHashMapEntry(&messageCache, id);
 
-    // cannot find message in cache
-    if (node == NULL) {
+    // if not found in cache, retrieve from the database, and add it to the cache
+    if (node->message->content == NULL || node->message->content == "") {
         select(db, msg, id);
-
-        if ((msg->isDelivered) == 0) {
+        printf("Message found in database:\n");
+        // update isDelivered from 0 to 1
+        if (msg->isDelivered == 0) {
             update(db, id);
             select(db, msg, id);
+            printMessage(msg);
         }
-        printf("Message found in database:\n");
-        printMessage(msg);
+        // update cache
         addToCache(&messageCache, msg);
         return 0;
     }
 
+    // found in cache
     if (node->message->id == id) {
         msg = node->message;
         printf("Message found in cache:\n");
@@ -70,10 +71,7 @@ int retrieveMessages(sqlite3 *db, int id) {
         }
         addToCache(&messageCache, msg);
         return 0;
-    }
-
-    // if not found in cache, retrieve from the database, and add it to the cache
-    
+    }    
 }
 
 // print query results

@@ -47,7 +47,7 @@ int main() {
 
     // Create and store 1000 new message    
     struct Message *newMsg = NULL;
-    for (int i = 1; i < 51; i++ ) {
+    for (int i = 1; i < 50; i++ ) {
         newMsg = create_msg(i, "2023-11-10 12:34:56", "Sender1", "Receiver1", "Hello, World!");
         storeMessage(db, newMsg);
     }
@@ -61,11 +61,11 @@ int main() {
 
     // retrieve message from database
     retrieveMessages(db,10);
-    retrieveMessages(db, 11);
+    retrieveMessages(db,11);
 
     // print cache
     printCache();
-    
+
     // reset database to empty
     const char *deleteQuery = "DELETE FROM Messages;";
     rc = sqlite3_exec(db, deleteQuery, 0, 0, &errMsg);

@@ -41,7 +41,7 @@ unsigned int hash(int key) {
 Node *createNode(struct Message *message) {
     Node *newNode = (Node *)malloc(sizeof(Node));
     //newNode->message = (Message *)malloc(sizeof(struct Message));
-    newNode->message = message; // Copy the contents of the message
+    newNode->message = message;
     newNode->prev = NULL;
     newNode->next = NULL;
     return newNode;
@@ -60,11 +60,11 @@ void addHashMapEntry(Cache *cache, int key, Node *node) {
         entry = entry->next;
     }
 
-    // Create a new hash map entry
+    // create a new hash map entry
     HashMapEntry *newEntry = (HashMapEntry *)malloc(sizeof(HashMapEntry));
     newEntry->key = key;
     newEntry->node = node;
-    newEntry->next = cache->hashMap[index];  // Insert at the beginning
+    newEntry->next = cache->hashMap[index];  // insert at the beginning
     cache->hashMap[index] = newEntry;
 }
 
@@ -141,11 +141,11 @@ void moveNodeToFront(Cache *cache, Node *node) {
 
 void deleteNode(Node *node) {
     if (node != NULL) {
-        free(node->message);  // Assuming message is dynamically allocated
+        free(node->message);
         free(node);
     }
 }
-Cache messageCache;  // Global cache variable
+Cache messageCache;  // global cache variable
 
 void leastRecentUse(struct Message *msg){
     if (messageCache.occupied == CACHE_SIZE) {
@@ -162,28 +162,19 @@ void randomReplacement(struct Message *msg) {
 
     //srand(time(NULL));
 
-    // Generate a random number within the range of occupied slots
+    // generate a random number
     int randomNumber = rand() % messageCache.occupied - 1 ;
     Node *cur = messageCache.head;
 
-    // Traverse to the random node
+    // traverse to the random node
     for (int i = 1; i < randomNumber && cur != NULL; i++) {
         cur = cur->next;
     }
 
-    // Replace the message in the found node
     if (cur != NULL) {
-        // Remove the old message entry from the hash map
         removeHashMapEntry(&messageCache, cur->message->id);
-
-        // Free the old message
         free(cur->message->content);
-
-        // Create a new message and assign it to the node
         cur->message->id = &msg->id;
-        //cur->message->content = msg->content;
-
-        // Add the new message entry to the hash map
         addHashMapEntry(&messageCache, msg->id, cur);
     }
 }
