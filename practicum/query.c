@@ -16,8 +16,8 @@ int insert(sqlite3 *db, struct Message *msg) {
     char *errMsg;
     char insertQuery[1024];
 
-    snprintf(insertQuery, sizeof(insertQuery), "INSERT INTO Messages (timeSent, sender, receiver, content, isDelivered) VALUES ('%s', '%s', '%s', '%s', %d);",
-             msg->timeSent, msg->sender, msg->receiver, msg->content, msg->isDelivered);
+    snprintf(insertQuery, sizeof(insertQuery), "INSERT INTO Messages (id, timeSent, sender, receiver, content, isDelivered) VALUES ('%d', %s', '%s', '%s', '%s', %d);",
+             msg->id, msg->timeSent, msg->sender, msg->receiver, msg->content, msg->isDelivered);
 
     int rc = sqlite3_exec(db, insertQuery, 0, 0, &errMsg);
 
