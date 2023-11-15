@@ -13,7 +13,9 @@
 #include "message.h"
 
 #define CACHE_SIZE 16
-#define HASH_MAP_SIZE 16 
+#define HASH_MAP_SIZE 16
+
+struct Cache messageCache;  // Global cache variable
 
 typedef struct Node {
     struct Node *prev;
@@ -21,22 +23,22 @@ typedef struct Node {
     struct Message *message;
 } Node;
 
-typedef struct HashMapEntry {
-    int key;   // key is message id
-    Node *node; // value is pointer to message in the linked list
-    Node *next;
-} HashMapEntry;
+// typedef struct HashMapEntry {
+//     int key;   // key is message id
+//     Node *node; // value is pointer to message in the linked list
+//     Node *next;
+// } HashMapEntry;
 
 typedef struct Cache {
     Node *head;
     Node *tail;
     int occupied;  // number of occupied slots in the cache
-    HashMapEntry *hashMap[HASH_MAP_SIZE]; 
+    //HashMapEntry *hashMap[HASH_MAP_SIZE]; 
 } Cache;
 
-unsigned int hash(int key) {
-    return key % HASH_MAP_SIZE;
-}
+// unsigned int hash(int key) {
+//     return key % HASH_MAP_SIZE;
+// }
 
 Node *createNode(struct Message *message) {
     Node *newNode = (Node *)malloc(sizeof(Node));
@@ -47,60 +49,60 @@ Node *createNode(struct Message *message) {
     return newNode;
 }
 
-void addHashMapEntry(Cache *cache, int key, Node *node) {
-    unsigned int index = hash(key);
-    HashMapEntry *entry = cache->hashMap[index];
+// void addHashMapEntry(Cache *cache, int key, Node *node) {
+//     unsigned int index = hash(key);
+//     HashMapEntry *entry = cache->hashMap[index];
 
-    // check if an entry with the same key already exists
-    while (entry != NULL) {
-        if (entry->key == key) {
-            entry->node = node;  // update the node pointer
-            return;
-        }
-        entry = entry->next;
-    }
+//     // check if an entry with the same key already exists
+//     while (entry != NULL) {
+//         if (entry->key == key) {
+//             entry->node = node;  // update the node pointer
+//             return;
+//         }
+//         entry = entry->next;
+//     }
 
-    // create a new hash map entry
-    HashMapEntry *newEntry = (HashMapEntry *)malloc(sizeof(HashMapEntry));
-    newEntry->key = key;
-    newEntry->node = node;
-    newEntry->next = cache->hashMap[index];  // insert at the beginning
-    cache->hashMap[index] = newEntry;
-}
+//     // create a new hash map entry
+//     HashMapEntry *newEntry = (HashMapEntry *)malloc(sizeof(HashMapEntry));
+//     newEntry->key = key;
+//     newEntry->node = node;
+//     newEntry->next = cache->hashMap[index];  // insert at the beginning
+//     cache->hashMap[index] = newEntry;
+// }
 
-Node *findHashMapEntry(Cache *cache, int key) {
-    unsigned int index = hash(key);
-    HashMapEntry *entry = cache->hashMap[index];
+// Node *findHashMapEntry(Cache *cache, int key) {
+//     unsigned int index = hash(key);
+//     HashMapEntry *entry = cache->hashMap[index];
 
-    while (entry != NULL) {
-        if (entry->key == key) {
-            return entry->node;  // return the associated node
-        }
-        entry = entry->next;
-    }
+//     while (entry != NULL) {
+//         if (entry->key == key) {
+//             return entry->node;  // return the associated node
+//         }
+//         entry = entry->next;
+//     }
 
-    return NULL;  // key not found
-}
+//     return NULL;  // key not found
+// }
 
-void removeHashMapEntry(Cache *cache, int key) {
-    unsigned int index = hash(key);
-    HashMapEntry *entry = cache->hashMap[index];
-    HashMapEntry *prevEntry = NULL;
+// void removeHashMapEntry(Cache *cache, int key) {
+//     unsigned int index = hash(key);
+//     HashMapEntry *entry = cache->hashMap[index];
+//     HashMapEntry *prevEntry = NULL;
 
-    while (entry != NULL) {
-        if (entry->key == key) {
-            if (prevEntry == NULL) {
-                cache->hashMap[index] = entry->next;  // remove from head
-            } else {
-                prevEntry->next = entry->next;  // remove from middle or end
-            }
-            free(entry);  // free the memory of the hash map entry
-            return;
-        }
-        prevEntry = entry;
-        entry = entry->next;
-    }
-}
+//     while (entry != NULL) {
+//         if (entry->key == key) {
+//             if (prevEntry == NULL) {
+//                 cache->hashMap[index] = entry->next;  // remove from head
+//             } else {
+//                 prevEntry->next = entry->next;  // remove from middle or end
+//             }
+//             free(entry);  // free the memory of the hash map entry
+//             return;
+//         }
+//         prevEntry = entry;
+//         entry = entry->next;
+//     }
+// }
 
 void addNodeToFront(Cache *cache, Node *node) {
     node->next = cache->head;
@@ -145,16 +147,15 @@ void deleteNode(Node *node) {
         free(node);
     }
 }
-Cache messageCache;  // global cache variable
 
 void leastRecentUse(struct Message *msg){
     if (messageCache.occupied == CACHE_SIZE) {
-        removeHashMapEntry(&messageCache, messageCache.tail->message->id);
+        //removeHashMapEntry(&messageCache, messageCache.head->message->id);
         removeNode(&messageCache, messageCache.tail);
     }
     Node *newNode = createNode(msg);
     addNodeToFront(&messageCache, newNode);
-    addHashMapEntry(&messageCache, newNode->message->id, newNode);
+    //addHashMapEntry(&messageCache, newNode->message->id, newNode);
 
 }
 
@@ -172,18 +173,29 @@ void randomReplacement(struct Message *msg) {
     }
 
     if (cur != NULL) {
-        removeHashMapEntry(&messageCache, cur->message->id);
+        //removeHashMapEntry(&messageCache, cur->message->id);
         free(cur->message->content);
-        cur->message->id = &msg->id;
-        addHashMapEntry(&messageCache, msg->id, cur);
+        cur->message->id = msg->id;
+        //addHashMapEntry(&messageCache, msg->id, cur);
     }
 }
 
+void *findById(Cache *cache, int id) {
+    Node *cur = messageCache.head;
+    while (cur) {
+        if (cur->message->id == id) {
+            return cur;
+        }
+        cur = cur->next;
+    }
+    return NULL;
+}
+
 void addToCache(Cache *cache, struct Message *message) {
-    Node *newNode = createNode(&message);
+    Node *newNode = createNode(message);
     if (messageCache.occupied < CACHE_SIZE) {
         addNodeToFront(&messageCache, newNode);
-        addHashMapEntry(&messageCache, message->id, newNode);
+        //addHashMapEntry(&messageCache, message->id, newNode);
     } else {
         leastRecentUse(message);
     }

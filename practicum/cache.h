@@ -19,23 +19,24 @@ typedef struct Node {
     struct Message *message;
 } Node;
 
-typedef struct HashMapEntry {
-    int key;   // key is message id
-    Node *node; // value is pointer to message in the linked list
-    Node *next;
-} HashMapEntry;
+// typedef struct HashMapEntry {
+//     int key;   // key is message id
+//     Node *node; // value is pointer to message in the linked list
+//     struct HashMapEntry *next;
+// } HashMapEntry;
 
 typedef struct Cache {
     Node *head;
     Node *tail;
     int occupied;  // number of occupied slots in the cache
-    HashMapEntry *hashMap[HASH_MAP_SIZE]; 
+    //HashMapEntry *hashMap[HASH_MAP_SIZE]; 
 } Cache;
 
 Node *createNode(struct Message *message);
-void addHashMapEntry(Cache *cache, int key, Node *node);
-Node *findHashMapEntry(Cache *cache, int key);
-void removeHashMapEntry(Cache *cache, int key);
+// void addHashMapEntry(Cache *cache, int key, Node *node);
+// Node *findHashMapEntry(Cache *cache, int key);
+// void removeHashMapEntry(Cache *cache, int key);
+struct Messgae findMessageById(Cache *cache, int id);
 void addNodeToFront(Cache *cache, Node *node);
 void removeNode(Cache *cache, Node *node);
 void moveNodeToFront(Cache *cache, Node *node);
@@ -44,5 +45,6 @@ void leastRecentUse(struct Message *msg);
 void randomReplacement(struct Message *msg);
 void addToCache(Cache *cache, struct Message *message);
 void printCache();
+void *findById(Cache *cache, int id);
 
 #endif

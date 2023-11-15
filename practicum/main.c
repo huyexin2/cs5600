@@ -41,9 +41,9 @@ int main() {
     messageCache.head = NULL;
     messageCache.tail = NULL;
     messageCache.occupied = 0;
-    for (int i = 0; i < HASH_MAP_SIZE; i++) {
-        messageCache.hashMap[i] = NULL;
-    }
+    // for (int i = 0; i < HASH_MAP_SIZE; i++) {
+    //     messageCache.hashMap[i] = NULL;
+    // }
 
     // Create and store 1000 new message    
     struct Message *newMsg = NULL;
@@ -56,8 +56,8 @@ int main() {
     printCache();
 
     // retrieve message from cache
-    retrieveMessages(db, 48);
-    retrieveMessages(db, 49);
+    // retrieveMessages(db, 48);
+    // retrieveMessages(db, 49);
 
     // retrieve message from database
     retrieveMessages(db,10);

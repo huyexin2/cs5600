@@ -42,10 +42,10 @@ int retrieveMessages(sqlite3 *db, int id) {
     struct Message *msg = NULL;
 
     // check if the message is in the cache
-    Node *node = findHashMapEntry(&messageCache, id);
-
+    //Node *node = findHashMapEntry(&messageCache, id);
+    Node *node = findById(&messageCache, id);
     // if not found in cache, retrieve from the database, and add it to the cache
-    if (node->message->content == NULL || node->message->content == "") {
+    if (node == NULL) {
         select(db, msg, id);
         printf("Message found in database:\n");
         // update isDelivered from 0 to 1
