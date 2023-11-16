@@ -5,9 +5,10 @@
 * Fall 2023 / Nov 14, 2023
 */
 
-#ifndef CACHE_H  
-#define CACHE_H 
+#ifndef CACHE_H
+#define CACHE_H
 
+#include "hashmap.h"
 #include "message.h"
 
 #define CACHE_SIZE 16
@@ -19,32 +20,16 @@ typedef struct Node {
     struct Message *message;
 } Node;
 
-// typedef struct HashMapEntry {
-//     int key;   // key is message id
-//     Node *node; // value is pointer to message in the linked list
-//     struct HashMapEntry *next;
-// } HashMapEntry;
-
 typedef struct Cache {
     Node *head;
     Node *tail;
-    int occupied;  // number of occupied slots in the cache
-    //HashMapEntry *hashMap[HASH_MAP_SIZE]; 
+    struct HashMap *hashmap;
+    int occupied; // number of occupied slots in the cache
 } Cache;
 
-Node *createNode(struct Message *message);
-// void addHashMapEntry(Cache *cache, int key, Node *node);
-// Node *findHashMapEntry(Cache *cache, int key);
-// void removeHashMapEntry(Cache *cache, int key);
-struct Messgae findMessageById(Cache *cache, int id);
-void addNodeToFront(Cache *cache, Node *node);
-void removeNode(Cache *cache, Node *node);
-void moveNodeToFront(Cache *cache, Node *node);
-void deleteNode(Node *node);
-void leastRecentUse(struct Message *msg);
 void randomReplacement(struct Message *msg);
+struct Message *getFromCache(Cache *cache, int messageId);
 void addToCache(Cache *cache, struct Message *message);
 void printCache();
-void *findById(Cache *cache, int id);
 
 #endif

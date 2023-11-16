@@ -12,6 +12,8 @@
 #include <string.h>
 
 extern struct Cache messageCache;
+extern float dbCounter;
+extern float cacheCounter;
 
 // message structure
 struct Message {
@@ -24,14 +26,12 @@ struct Message {
 };
 
 // create message
-struct Message* create_msg(int id, const char* timeSent, const char* sender, const char* receiver, const char* content);
+struct Message *create_msg(int id, const char *timeSent, const char *sender, const char *receiver, const char *content, int isDelivered);
 // store message
 int storeMessage(sqlite3 *db, struct Message *msg);
 // retrieve message by id
 int retrieveMessages(sqlite3 *db, int id);
 // print message
 void printMessage(struct Message *msg);
-// print message from database
-int printMessageFromDB(void *data, int argc, char **argv, char **azColName);
 
 #endif // MESSAGE_H

@@ -5,105 +5,48 @@
 * Fall 2023 / Nov 14, 2023
 */
 
+#include "cache.h"
+#include "hashmap.h"
+#include "message.h"
+#include <sqlite3.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <sqlite3.h>
-#include <time.h>
 #include <string.h>
-#include "message.h"
+#include <time.h>
 
 #define CACHE_SIZE 16
 #define HASH_MAP_SIZE 16
 
-struct Cache messageCache;  // Global cache variable
+Cache messageCache; // Global cache variable
 
-typedef struct Node {
-    struct Node *prev;
-    struct Node *next;
-    struct Message *message;
-} Node;
-
-// typedef struct HashMapEntry {
-//     int key;   // key is message id
-//     Node *node; // value is pointer to message in the linked list
-//     Node *next;
-// } HashMapEntry;
-
-typedef struct Cache {
-    Node *head;
-    Node *tail;
-    int occupied;  // number of occupied slots in the cache
-    //HashMapEntry *hashMap[HASH_MAP_SIZE]; 
-} Cache;
-
-// unsigned int hash(int key) {
-//     return key % HASH_MAP_SIZE;
-// }
-
+// create a node
 Node *createNode(struct Message *message) {
     Node *newNode = (Node *)malloc(sizeof(Node));
-    //newNode->message = (Message *)malloc(sizeof(struct Message));
-    newNode->message = message;
+    newNode->message = create_msg(message->id, message->timeSent, message->sender, message->receiver, message->content, message->isDelivered);
     newNode->prev = NULL;
     newNode->next = NULL;
     return newNode;
 }
 
-// void addHashMapEntry(Cache *cache, int key, Node *node) {
-//     unsigned int index = hash(key);
-//     HashMapEntry *entry = cache->hashMap[index];
+// remove node
+void removeNode(Cache *cache, Node *node) {
+    if (node->prev != NULL) {
+        node->prev->next = node->next;
+    } else {
+        // remove first node
+        cache->head = node->next;
+    }
 
-//     // check if an entry with the same key already exists
-//     while (entry != NULL) {
-//         if (entry->key == key) {
-//             entry->node = node;  // update the node pointer
-//             return;
-//         }
-//         entry = entry->next;
-//     }
+    if (node->next != NULL) {
+        node->next->prev = node->prev;
+    } else {
+        // remove last node
+        cache->tail = node->prev;
+    }
+    cache->occupied--;
+}
 
-//     // create a new hash map entry
-//     HashMapEntry *newEntry = (HashMapEntry *)malloc(sizeof(HashMapEntry));
-//     newEntry->key = key;
-//     newEntry->node = node;
-//     newEntry->next = cache->hashMap[index];  // insert at the beginning
-//     cache->hashMap[index] = newEntry;
-// }
-
-// Node *findHashMapEntry(Cache *cache, int key) {
-//     unsigned int index = hash(key);
-//     HashMapEntry *entry = cache->hashMap[index];
-
-//     while (entry != NULL) {
-//         if (entry->key == key) {
-//             return entry->node;  // return the associated node
-//         }
-//         entry = entry->next;
-//     }
-
-//     return NULL;  // key not found
-// }
-
-// void removeHashMapEntry(Cache *cache, int key) {
-//     unsigned int index = hash(key);
-//     HashMapEntry *entry = cache->hashMap[index];
-//     HashMapEntry *prevEntry = NULL;
-
-//     while (entry != NULL) {
-//         if (entry->key == key) {
-//             if (prevEntry == NULL) {
-//                 cache->hashMap[index] = entry->next;  // remove from head
-//             } else {
-//                 prevEntry->next = entry->next;  // remove from middle or end
-//             }
-//             free(entry);  // free the memory of the hash map entry
-//             return;
-//         }
-//         prevEntry = entry;
-//         entry = entry->next;
-//     }
-// }
-
+// add a node to front
 void addNodeToFront(Cache *cache, Node *node) {
     node->next = cache->head;
     node->prev = NULL;
@@ -113,27 +56,11 @@ void addNodeToFront(Cache *cache, Node *node) {
     }
     cache->head = node;
 
+    // if only one node in the linked list
     if (cache->tail == NULL) {
         cache->tail = node;
     }
-
     cache->occupied++;
-}
-
-void removeNode(Cache *cache, Node *node) {
-    if (node->prev != NULL) {
-        node->prev->next = node->next;
-    } else {
-        cache->head = node->next;
-    }
-
-    if (node->next != NULL) {
-        node->next->prev = node->prev;
-    } else {
-        cache->tail = node->prev;
-    }
-
-    cache->occupied--;
 }
 
 void moveNodeToFront(Cache *cache, Node *node) {
@@ -141,30 +68,29 @@ void moveNodeToFront(Cache *cache, Node *node) {
     addNodeToFront(cache, node);
 }
 
-void deleteNode(Node *node) {
+// remove the last node
+void removeLastNode(Cache *cache) {
+    if (cache->tail != NULL) {
+        removeNode(cache, cache->tail);
+    }
+}
+
+// get meesage from cache
+struct Message *getFromCache(Cache *cache, int messageId) {
+    void *node = get(cache->hashmap, messageId);
     if (node != NULL) {
-        free(node->message);
-        free(node);
+        struct Node *messageNode = (struct Node *)node;
+        moveNodeToFront(cache, messageNode);
+        return messageNode->message;
+    } else {
+        return NULL;
     }
 }
 
-void leastRecentUse(struct Message *msg){
-    if (messageCache.occupied == CACHE_SIZE) {
-        //removeHashMapEntry(&messageCache, messageCache.head->message->id);
-        removeNode(&messageCache, messageCache.tail);
-    }
-    Node *newNode = createNode(msg);
-    addNodeToFront(&messageCache, newNode);
-    //addHashMapEntry(&messageCache, newNode->message->id, newNode);
-
-}
-
+// random replacement
 void randomReplacement(struct Message *msg) {
-
-    //srand(time(NULL));
-
     // generate a random number
-    int randomNumber = rand() % messageCache.occupied - 1 ;
+    int randomNumber = rand() % messageCache.occupied - 1;
     Node *cur = messageCache.head;
 
     // traverse to the random node
@@ -173,34 +99,35 @@ void randomReplacement(struct Message *msg) {
     }
 
     if (cur != NULL) {
-        //removeHashMapEntry(&messageCache, cur->message->id);
-        free(cur->message->content);
-        cur->message->id = msg->id;
-        //addHashMapEntry(&messageCache, msg->id, cur);
-    }
+        // remove old message from the hashmap
+        removeFromMap(messageCache.hashmap, cur->message->id);
+        // set current node message to the msg
+        cur->message = msg;
+        // put new msg in the hashmap
+        put(messageCache.hashmap, msg->id, cur);
+    } 
 }
 
-void *findById(Cache *cache, int id) {
-    Node *cur = messageCache.head;
-    while (cur) {
-        if (cur->message->id == id) {
-            return cur;
-        }
-        cur = cur->next;
-    }
-    return NULL;
-}
-
+// add to cache
 void addToCache(Cache *cache, struct Message *message) {
-    Node *newNode = createNode(message);
-    if (messageCache.occupied < CACHE_SIZE) {
-        addNodeToFront(&messageCache, newNode);
-        //addHashMapEntry(&messageCache, message->id, newNode);
-    } else {
-        leastRecentUse(message);
+    int key = message->id;
+    void *node = get(cache->hashmap, key);
+    if (node != NULL) {
+        struct Node *messageNode = (struct Node *)node;
+        messageNode->message = message;
+        moveNodeToFront(cache, messageNode);
     }
+    if (cache->occupied == CACHE_SIZE) {
+        struct Node *lruNode = cache->tail;
+        removeNode(cache, cache->tail);
+        removeFromMap(cache->hashmap, lruNode->message->id);
+    }
+    Node *newNode = createNode(message);
+    put(cache->hashmap, key, newNode);
+    addNodeToFront(cache, newNode);
 }
 
+// print cache
 void printCache() {
     printf("message in cache:\n");
     Node *current = messageCache.head;

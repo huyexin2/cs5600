@@ -5,17 +5,22 @@
 * Fall 2023 / Nov 14, 2023
 */
 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <stdbool.h>
-#include <sqlite3.h>
-#include <time.h>
-#include "message.h"
 #include "cache.h"
+#include "message.h"
+#include "hashmap.h"
+#include <sqlite3.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
 
 #define CACHE_SIZE 16
 #define HASH_MAP_SIZE 16
+
+// counter 
+float dbCounter = 0;
+float cacheCounter = 0;
 
 int main() {
     srand(time(NULL));
@@ -27,8 +32,8 @@ int main() {
         fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
         return rc;
     }
-    
-    //initialize table
+
+    // initialize table
     const char *createTableQuery = "CREATE TABLE IF NOT EXISTS Messages (id INTEGER PRIMARY KEY, timeSent TEXT, sender TEXT, receiver TEXT, content TEXT, isDelivered INT);";
 
     rc = sqlite3_exec(db, createTableQuery, 0, 0, &errMsg);
@@ -37,18 +42,16 @@ int main() {
         sqlite3_free(errMsg);
     }
 
-    // initialize the cache
+    // initialize cache
     messageCache.head = NULL;
     messageCache.tail = NULL;
+    messageCache.hashmap = createHashMap();
     messageCache.occupied = 0;
-    // for (int i = 0; i < HASH_MAP_SIZE; i++) {
-    //     messageCache.hashMap[i] = NULL;
-    // }
 
-    // Create and store 1000 new message    
+    // Create and store 1000 new message
     struct Message *newMsg = NULL;
-    for (int i = 1; i < 50; i++ ) {
-        newMsg = create_msg(i, "2023-11-10 12:34:56", "Sender1", "Receiver1", "Hello, World!");
+    for (int i = 1; i < 1001; i++) {
+        newMsg = create_msg(i, "2023-11-10 12:34:56", "Sender1", "Receiver1", "Hello, World!", 0);
         storeMessage(db, newMsg);
     }
 
@@ -56,18 +59,22 @@ int main() {
     printCache();
 
     // retrieve message from cache
-    // retrieveMessages(db, 48);
-    // retrieveMessages(db, 49);
+    for (int i = 1; i < 1000; i++) {
+        // generate a random number between 0 and 15
+        int randomNumber = rand() % 1000;
+        retrieveMessages(db, randomNumber);
+    }
 
-    // retrieve message from database
-    retrieveMessages(db,10);
-    retrieveMessages(db,11);
+    printf("number of cache hits per 1000 random message accesses: %f\n", cacheCounter);
+    printf("number of cache misses per 1000 random message accesses: %f\n", dbCounter);
+    cacheCounter = cacheCounter/1000;
+    printf("cache hit ratio per 1000 random message accesses : %f\n", cacheCounter);    
 
     // print cache
-    printCache();
+    // printCache();
 
     // reset database to empty
-    const char *deleteQuery = "DELETE FROM Messages;";
+    const char *deleteQuery = "DROP TABLE Messages;";
     rc = sqlite3_exec(db, deleteQuery, 0, 0, &errMsg);
 
     // close the SQLite database connection
