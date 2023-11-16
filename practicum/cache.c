@@ -17,6 +17,13 @@
 #define CACHE_SIZE 16
 #define HASH_MAP_SIZE 16
 
+/*
+we use linked list to maintain the order of message. In LRU cache, we need to track the usage
+order of the message. Linked list has O(1) for insertion and removal message. 
+We also use hashmap to get O(1) to search message in cache.
+The alternative approach would be use of list. Since list has O(n) for insertion and removal. We are not consider to use it in this case.
+*/
+
 Cache messageCache; // Global cache variable
 
 // create a node
